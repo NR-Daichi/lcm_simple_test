@@ -15,8 +15,8 @@ class test_controller:
     def __init__(self):
 
         self.end_effector_link_names=['L_foot_pitch', 'R_foot_pitch']
-        self.loop_rate = 250.0
-        self.cntrl_frq = 250
+        self.loop_rate = 300.0
+        self.cntrl_frq = 300
         self.g = 9.8
 
         self.counter = 0

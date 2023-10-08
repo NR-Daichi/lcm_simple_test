@@ -15,8 +15,8 @@ from copy import deepcopy
 class pybullet_lcm:
     def __init__(self):
 
-        self.sim_time_step = 1.0/250.0
-        self.loop_rate = 250.0
+        self.sim_time_step = 1.0/300.0
+        self.loop_rate = 300.0
         self.g = 9.8
         # self.spam_Pos = [0, 0, 0.5]
         self.spam_Pos = [0, 0, 0.265]
@@ -185,7 +185,7 @@ class pybullet_lcm:
         self.lcm_gain_tune_data = lcm_float32Array()
         self.lcm_gain_tune_data.data = np.zeros(12)
         self.lcm_gain_tune_data.num_data = 12
-        self.lc.publish('/lcm_gain_tune', self.lcm_gain_tune_data.encode())
+        # self.lc.publish('/lcm_gain_tune', self.lcm_gain_tune_data.encode())
 
         if len(self.torque_time_Delay_LCM_list) > 2:
             self.lcm_delay_data.data = self.torque_time_Delay_LCM_list[-1]

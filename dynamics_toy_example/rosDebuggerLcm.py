@@ -7,7 +7,7 @@ import lcm
 class rosDebuggerLcm:
     def __init__(self):
         rospy.init_node('rosdebugger', anonymous=True)
-        self.rate = rospy.Rate(250)
+        self.rate = rospy.Rate(10)
 
         self.ros_pub = rospy.Publisher('rosDebugger', Float32MultiArray, queue_size=1)
         self.pub_LCM_Delay_Pb2Pj = rospy.Publisher('/Lcm_delay', Float32, queue_size=1)
@@ -61,7 +61,7 @@ class rosDebuggerLcm:
         self.pub_LCM_Delay_Pb2Pj.publish(self.ros_time_delay)
         self.ros_pub_joint_state_deg.publish(self.joint_state_deg)
         self.ros_pub_joint_state_error.publish(self.joint_state_error)
-        # self.lc.publish('/lcm_gain_tune', self.lcm_gain_tune_data.encode())
+        self.lc.publish('/lcm_gain_tune', self.lcm_gain_tune_data.encode())
 
 if __name__ == "__main__":
     lce = rosDebuggerLcm()
