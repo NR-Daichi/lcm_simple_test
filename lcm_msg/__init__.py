@@ -7,3 +7,4 @@ from .lcm_JointState import lcm_JointState
 from .lcm_JointState2 import lcm_JointState2
 from .lcm_JointState3 import lcm_JointState3
 from .lcm_float32 import lcm_float32
+from .lcm_float32Array import lcm_float32Array
