@@ -15,8 +15,8 @@ from copy import deepcopy
 class pybullet_lcm:
     def __init__(self):
 
-        self.sim_time_step = 1.0/300.0
-        self.loop_rate = 300.0
+        self.sim_time_step = 1.0/350.0
+        self.loop_rate = 350.0
         self.g = 9.8
         # self.spam_Pos = [0, 0, 0.5]
         self.spam_Pos = [0, 0, 0.265]
@@ -238,6 +238,11 @@ class pybullet_lcm:
             self.lc.handle()
             if not self.flag_torque:
                 self.lc.handle()
+
+            rfds, wfds, efds = select.select([self.lc.fileno()], [], [], 0)
+            while rfds:
+                self.lc.handle()
+                rfds, wfds, efds = select.select([self.lc.fileno()], [], [], 0)
 
             self.updateJointTorque()
             self.simUpdateDynamics()

@@ -206,6 +206,11 @@ class test_controller:
                     self.lc.handle()
                 self.js_renew = False
 
+                rfds, wfds, efds = select.select([self.lc.fileno()], [], [], 0)
+                while rfds:
+                    self.lc.handle()
+                    rfds, wfds, efds = select.select([self.lc.fileno()], [], [], 0)
+
                 # rfds, wfds, efds = select.select([self.lc.fileno()], [], [], 0.0015)
                 # while rfds:
                 #     self.lc.handle()
