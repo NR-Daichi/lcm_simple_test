@@ -28,7 +28,7 @@ class rosDebuggerLcm:
         sub_JointStateTarget_lcm = self.lc.subscribe('/lcm_delay', self.lcm_DelayTarget)
         sub_JointStateDeg_lcm = self.lc.subscribe('/joint_states_deg/LcmCnt2Pb', self.lcm_JointStateDeg)
         sub_JointStateDegError_lcm = self.lc.subscribe('/joint_states_deg_error/LcmCnt2Pb', self.lcm_JointStateDegError)
-        sub_JointState = self.lc.subscribe('/lcmDebugger', self.sub_lcm_JointState)
+        # sub_JointState = self.lc.subscribe('/lcmDebugger', self.sub_lcm_JointState)
         self.counter=0
 
     def gain_tune_cb(self,data: Float32MultiArray):

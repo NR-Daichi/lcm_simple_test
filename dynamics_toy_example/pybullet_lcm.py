@@ -80,6 +80,7 @@ class pybullet_lcm:
         self.flag_torque =False
 
     def lcm_JointStateTarget(self, channel, data):
+        print('sub torque')
 
         msg = lcm_JointState3.decode(data)
 
@@ -214,25 +215,45 @@ class pybullet_lcm:
 
             self.simUpdateData()
             self.publish()
+            # self.lc.handle()
+
+
+            # rfds, wfds, efds = select.select([self.lc.fileno()], [], [], 0.001)
+            # # rfds = True
+            # if rfds:
+            #     # print("rfds is true")
+            #     self.lc.handle()
+            # else:
+            #     print("------------ rfds is False -----------")
+            #     # break
+            #     # rfds, wfds, efds = select.select([self.lc.fileno()], [], [], 0)
+            #     # if rfds:
+            #     #     print('############# rfds is true #############')
+
+            # rfds, wfds, efds = select.select([self.lc.fileno()], [], [], 0.0005)
+            # while rfds:
+            #     self.lc.handle()
+            #     rfds, wfds, efds = select.select([self.lc.fileno()], [], [], 0.0005)
+
             self.lc.handle()
-            rfds, wfds, efds = select.select([self.lc.fileno()], [], [], 0)
-            while rfds:
+            if not self.flag_torque:
                 self.lc.handle()
-                rfds, wfds, efds = select.select([self.lc.fileno()], [], [], 0)
-                if rfds:
-                    self.lc.handle()
 
             self.updateJointTorque()
             self.simUpdateDynamics()
             mid_time = time.time_ns()/(10**9)
             left_time = 1.0/self.loop_rate - (mid_time - start_time)
             if left_time>0:
+                print('@@@@@@@@@@@@ sleep @@@@@@@@@@@@@@')
                 time.sleep(left_time)
 
             end_tme = time.time_ns() / (10**9)
             node_time = (end_tme - start_time)
             self.node_time_list.append(node_time)
             print("sim node:", node_time, "frq:", 1 / node_time)
+
+            self.flag_torque = False
+
         self.end_sim()
 
 

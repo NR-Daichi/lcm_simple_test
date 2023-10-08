@@ -53,7 +53,7 @@ class test_controller:
 
         self.lc = lcm.LCM()
         sub_JointState = self.lc.subscribe('/joint_states/Pb2LcmCnt', self.sub_lcm_JointState)
-        # sub_lcm_gain = self.lc.subscribe('/lcm_gain_tune', self.sub_lcm_gain_tune)
+        sub_lcm_gain = self.lc.subscribe('/lcm_gain_tune', self.sub_lcm_gain_tune)
 
         self.joint_state_LCM = lcm_JointState3()
         self.joint_state_LCM.num_joint = 3
@@ -91,7 +91,7 @@ class test_controller:
         # test
         ##############
         self.cmd_rec = []
-
+        self.js_renew = False
     def sub_lcm_gain_tune(self, channel, data):
         msg = lcm_float32Array.decode(data)
         self.lcm_gain_tune_data = msg.data
@@ -111,6 +111,7 @@ class test_controller:
         self.sub_time_list.append(sub_time)
         self.pre_sub_time = cur_time
 
+        self.js_renew = True
         self.cmd_rec.append(1)
 
     def updateCounter(self):
@@ -199,12 +200,18 @@ class test_controller:
 
                 self.updateCounter()
                 self.lc.handle()
-                rfds, wfds, efds = select.select([self.lc.fileno()], [], [], 0)
-                while rfds:
+
+                while not self.js_renew:
+                    print(" 888888888  js renews 00000000000")
                     self.lc.handle()
-                    rfds, wfds, efds = select.select([self.lc.fileno()], [], [], 0)
-                    if rfds:
-                        self.lc.handle()
+                self.js_renew = False
+
+                # rfds, wfds, efds = select.select([self.lc.fileno()], [], [], 0.0015)
+                # while rfds:
+                #     self.lc.handle()
+                #     rfds, wfds, efds = select.select([self.lc.fileno()], [], [], 0.0015)
+                #     if rfds:
+                #         print('############# rfds is true #############')
 
                 self.updateJointState()
                 self.setTargetSin()
@@ -213,6 +220,7 @@ class test_controller:
                 mid_time = time.time_ns() / (10**9)
                 left_time = 1.0/self.loop_rate - (mid_time - start_time)
                 if left_time>0:
+                    print('@@@@@@@@@@@@ sleep @@@@@@@@@@@@@@')
                     time.sleep(left_time)
 
                 cur_time = time.time_ns()
