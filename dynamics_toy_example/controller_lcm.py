@@ -15,8 +15,8 @@ class test_controller:
     def __init__(self):
 
         self.end_effector_link_names=['L_foot_pitch', 'R_foot_pitch']
-        self.loop_rate = 350.0
-        self.cntrl_frq = 350
+        self.loop_rate = 500.0
+        self.cntrl_frq = 500
         self.g = 9.8
 
         self.counter = 0
@@ -205,22 +205,18 @@ class test_controller:
                 self.updateCounter()
                 self.lc.handle()
 
+                # insure that the joint state is updated
                 while not self.js_renew:
                     print(" 888888888  js renews 00000000000")
                     self.lc.handle()
                 self.js_renew = False
 
+                # if there is msg in bufffer, read them (insure that no messsage is stucked in buffer)
                 rfds, wfds, efds = select.select([self.lc.fileno()], [], [], 0)
                 while rfds:
                     self.lc.handle()
                     rfds, wfds, efds = select.select([self.lc.fileno()], [], [], 0)
 
-                # rfds, wfds, efds = select.select([self.lc.fileno()], [], [], 0.0015)
-                # while rfds:
-                #     self.lc.handle()
-                #     rfds, wfds, efds = select.select([self.lc.fileno()], [], [], 0.0015)
-                #     if rfds:
-                #         print('############# rfds is true #############')
 
                 self.updateJointState()
                 self.setTargetSin()
@@ -228,17 +224,16 @@ class test_controller:
                 self.publish()
                 mid_time = time.time_ns() / (10**9)
 
+
                 if self.counter > 100:
-                    # self.counter +=1
                     next_wakeUpTime = (1.0 / self.loop_rate) * (self.counter - 100) + self.first_time
                 else:
                     self.first_time = time.time_ns() / (10 ** 9)
                     next_wakeUpTime = start_time + 1.0 / self.loop_rate
 
                 left_time = next_wakeUpTime - mid_time
-                # left_time = 1.0/self.loop_rate - (mid_time - start_time)
+
                 if left_time>0:
-                    print('@@@@@@@@@@@@ sleep @@@@@@@@@@@@@@')
                     time.sleep(left_time)
 
                 cur_time = time.time_ns()
