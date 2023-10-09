@@ -82,6 +82,8 @@ class pybullet_lcm:
 
 
     def lcm_JointStateTarget(self, channel, data):
+
+
         print('sub torque')
 
         msg = lcm_JointState3.decode(data)
@@ -92,6 +94,11 @@ class pybullet_lcm:
         self.joint_target_lcm.time1 = msg.time1
         self.joint_target_lcm.effort = list(msg.effort)
         self.joint_target_lcm.effort.append(0)
+
+        cur_time = time.time_ns()
+        sub_time = (cur_time - self.pre_sub_time)/(10**9)
+        self.sub_time_list.append(sub_time)
+        self.pre_sub_time = cur_time
 
         self.flag_torque = True
 
@@ -218,7 +225,6 @@ class pybullet_lcm:
             self.simUpdateData()
             self.publish()
 
-            self.lc.handle()
             if not self.flag_torque:
                 self.lc.handle()
 

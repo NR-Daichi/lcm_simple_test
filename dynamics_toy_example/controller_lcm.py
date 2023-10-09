@@ -198,53 +198,50 @@ class test_controller:
             print('control command data is saved')
 
     def ros_run(self):
-        while True:
-            try:
-                start_time = time.time_ns()/(10**9)
 
-                self.updateCounter()
+        while self.counter * 1.0/self.loop_rate < 60:
+            start_time = time.time_ns()/(10**9)
+
+            self.updateCounter()
+
+            # insure that the joint state is updated
+            while not self.js_renew:
+                print(" 888888888  js renews 00000000000")
                 self.lc.handle()
+            self.js_renew = False
 
-                # insure that the joint state is updated
-                while not self.js_renew:
-                    print(" 888888888  js renews 00000000000")
-                    self.lc.handle()
-                self.js_renew = False
-
-                # if there is msg in bufffer, read them (insure that no messsage is stucked in buffer)
+            # if there is msg in bufffer, read them (insure that no messsage is stucked in buffer)
+            rfds, wfds, efds = select.select([self.lc.fileno()], [], [], 0)
+            while rfds:
+                self.lc.handle()
                 rfds, wfds, efds = select.select([self.lc.fileno()], [], [], 0)
-                while rfds:
-                    self.lc.handle()
-                    rfds, wfds, efds = select.select([self.lc.fileno()], [], [], 0)
 
 
-                self.updateJointState()
-                self.setTargetSin()
-                self.control()
-                self.publish()
-                mid_time = time.time_ns() / (10**9)
+            self.updateJointState()
+            self.setTargetSin()
+            self.control()
+            self.publish()
+            mid_time = time.time_ns() / (10**9)
 
 
-                if self.counter > 100:
-                    next_wakeUpTime = (1.0 / self.loop_rate) * (self.counter - 100) + self.first_time
-                else:
-                    self.first_time = time.time_ns() / (10 ** 9)
-                    next_wakeUpTime = start_time + 1.0 / self.loop_rate
+            if self.counter > 100:
+                next_wakeUpTime = (1.0 / self.loop_rate) * (self.counter - 100) + self.first_time
+            else:
+                self.first_time = time.time_ns() / (10 ** 9)
+                next_wakeUpTime = start_time + 1.0 / self.loop_rate
 
-                left_time = next_wakeUpTime - mid_time
+            left_time = next_wakeUpTime - mid_time
 
-                if left_time>0:
-                    time.sleep(left_time)
+            if left_time>0:
+                time.sleep(left_time)
 
-                cur_time = time.time_ns()
-                self.cur_time_list.append(cur_time/(10**9))
-                node_time = (cur_time - self.pre_node_time)/(10**9)
-                print("contrller node:", node_time, "frq:", 1/node_time)
-                self.node_time_list.append(node_time)
-                self.pre_node_time = cur_time
+            cur_time = time.time_ns()
+            self.cur_time_list.append(cur_time/(10**9))
+            node_time = (cur_time - self.pre_node_time)/(10**9)
+            print("contrller node:", node_time, "frq:", 1/node_time)
+            self.node_time_list.append(node_time)
+            self.pre_node_time = cur_time
 
-            except KeyboardInterrupt:
-                break
 
         self.saveData()
         self.saveCmdData()
