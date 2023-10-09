@@ -77,7 +77,9 @@ class pybullet_lcm:
         self.torque_time_LCM_torque_list=[]
         self.torque_time_LCM_torque_list.append('/LCM_torque')
 
+        self.first_time = 0
         self.flag_torque =False
+
 
     def lcm_JointStateTarget(self, channel, data):
         print('sub torque')
@@ -247,7 +249,15 @@ class pybullet_lcm:
             self.updateJointTorque()
             self.simUpdateDynamics()
             mid_time = time.time_ns()/(10**9)
-            left_time = 1.0/self.loop_rate - (mid_time - start_time)
+
+            if self.counter > 100:
+                next_wakeUpTime = (1.0/self.loop_rate) * (self.counter-100) + self.first_time
+            else:
+                self.first_time = time.time_ns() / (10**9)
+                next_wakeUpTime = start_time + 1.0/self.loop_rate
+
+            left_time = next_wakeUpTime - mid_time
+            # left_time = 1.0/self.loop_rate - (mid_time - start_time)
             if left_time>0:
                 print('@@@@@@@@@@@@ sleep @@@@@@@@@@@@@@')
                 time.sleep(left_time)

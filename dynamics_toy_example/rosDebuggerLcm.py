@@ -7,7 +7,7 @@ import lcm
 class rosDebuggerLcm:
     def __init__(self):
         rospy.init_node('rosdebugger', anonymous=True)
-        self.rate = rospy.Rate(10)
+        self.rate = rospy.Rate(100)
 
         self.ros_pub = rospy.Publisher('rosDebugger', Float32MultiArray, queue_size=1)
         self.pub_LCM_Delay_Pb2Pj = rospy.Publisher('/Lcm_delay', Float32, queue_size=1)

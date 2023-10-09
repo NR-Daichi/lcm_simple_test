@@ -15,8 +15,8 @@ class test_controller:
     def __init__(self):
 
         self.end_effector_link_names=['L_foot_pitch', 'R_foot_pitch']
-        self.loop_rate = 300.0
-        self.cntrl_frq = 300
+        self.loop_rate = 350.0
+        self.cntrl_frq = 350
         self.g = 9.8
 
         self.counter = 0
@@ -92,6 +92,10 @@ class test_controller:
         ##############
         self.cmd_rec = []
         self.js_renew = False
+
+        self.counter = 0
+        self.first_time=0
+
     def sub_lcm_gain_tune(self, channel, data):
         msg = lcm_float32Array.decode(data)
         self.lcm_gain_tune_data = msg.data
@@ -223,7 +227,16 @@ class test_controller:
                 self.control()
                 self.publish()
                 mid_time = time.time_ns() / (10**9)
-                left_time = 1.0/self.loop_rate - (mid_time - start_time)
+
+                if self.counter > 100:
+                    # self.counter +=1
+                    next_wakeUpTime = (1.0 / self.loop_rate) * (self.counter - 100) + self.first_time
+                else:
+                    self.first_time = time.time_ns() / (10 ** 9)
+                    next_wakeUpTime = start_time + 1.0 / self.loop_rate
+
+                left_time = next_wakeUpTime - mid_time
+                # left_time = 1.0/self.loop_rate - (mid_time - start_time)
                 if left_time>0:
                     print('@@@@@@@@@@@@ sleep @@@@@@@@@@@@@@')
                     time.sleep(left_time)
